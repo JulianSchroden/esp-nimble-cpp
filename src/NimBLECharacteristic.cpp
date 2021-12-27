@@ -314,6 +314,9 @@ int NimBLECharacteristic::handleGapEvent(uint16_t conn_handle, uint16_t attr_han
                 rc = ble_gap_conn_find(conn_handle, &desc);
                 assert(rc == 0);
                 pCharacteristic->setValue(buf, len);
+                if(pCharacteristic->m_onWriteCallback) {
+                    pCharacteristic->m_onWriteCallback(pCharacteristic->getValue());
+                }
                 pCharacteristic->m_pCallbacks->onWrite(pCharacteristic);
                 pCharacteristic->m_pCallbacks->onWrite(pCharacteristic, &desc);
                 return 0;
@@ -505,6 +508,10 @@ void NimBLECharacteristic::setCallbacks(NimBLECharacteristicCallbacks* pCallback
         m_pCallbacks = &defaultCallback;
     }
 } // setCallbacks
+
+void NimBLECharacteristic::onWrite(CharacteristicValueCallback_t callback) {
+    m_onWriteCallback = callback;
+}
 
 /**
  * @brief Get the callback handlers for this characteristic.

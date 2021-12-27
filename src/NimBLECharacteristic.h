@@ -47,11 +47,12 @@ typedef enum {
 
 #include <string>
 #include <vector>
+#include <functional>
 
 class NimBLEService;
 class NimBLEDescriptor;
 class NimBLECharacteristicCallbacks;
-
+using CharacteristicValueCallback_t = std::function<void(std::string value)>;
 
 /**
  * @brief The model of a %BLE Characteristic.
@@ -81,6 +82,8 @@ public:
     void              setCallbacks(NimBLECharacteristicCallbacks* pCallbacks);
     NimBLECharacteristicCallbacks*
                       getCallbacks();
+
+    void              onWrite(CharacteristicValueCallback_t callback);
 
     void              indicate();
     void              notify(bool is_notification = true);
@@ -159,6 +162,7 @@ private:
     uint8_t                        m_removed;
 
     std::vector<std::pair<uint16_t, uint16_t>>  m_subscribedVec;
+    CharacteristicValueCallback_t m_onWriteCallback;
 }; // NimBLECharacteristic
 
 
