@@ -92,7 +92,7 @@ public:
     void stop();
     void setAppearance(uint16_t appearance);
     void setName(const std::string &name);
-    void setManufacturerData(const std::string &data);
+    void setManufacturerData(const std::vector<uint8_t> &data);
     void setURI(const std::string &uri);
     void setServiceData(const NimBLEUUID &uuid, const std::string &data);
     void setAdvertisementType(uint8_t adv_type);

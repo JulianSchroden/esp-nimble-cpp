@@ -146,7 +146,7 @@ void NimBLEAdvertising::setName(const std::string &name) {
  * @brief Set the advertised manufacturer data.
  * @param [in] data The data to advertise.
  */
-void NimBLEAdvertising::setManufacturerData(const std::string &data) {
+void NimBLEAdvertising::setManufacturerData(const std::vector<uint8_t> &data) {
     m_mfgData.assign(data.begin(), data.end());
     m_advData.mfg_data = &m_mfgData[0];
     m_advData.mfg_data_len = m_mfgData.size();
