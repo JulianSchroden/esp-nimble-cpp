@@ -48,7 +48,7 @@ NimBLECharacteristic::NimBLECharacteristic(const NimBLEUUID &uuid, uint16_t prop
     m_properties  = properties;
     m_pCallbacks  = &defaultCallback;
     m_pService    = pService;
-    m_value       = "";
+    m_value       = {};
     m_timestamp   = 0;
     m_removed     = 0;
 } // NimBLECharacteristic
@@ -231,11 +231,11 @@ NimBLEUUID NimBLECharacteristic::getUUID() {
 
 /**
  * @brief Retrieve the current value of the characteristic.
- * @return A std::string containing the current characteristic value.
+ * @return A std::vector<uint8_t> containing the current characteristic value.
  */
-std::string NimBLECharacteristic::getValue(time_t *timestamp) {
+std::vector<uint8_t> NimBLECharacteristic::getValue(time_t *timestamp) {
     ble_npl_hw_enter_critical();
-    std::string retVal = m_value;
+    auto retVal = m_value;
     if(timestamp != nullptr) {
         *timestamp = m_timestamp;
     }
@@ -251,7 +251,7 @@ std::string NimBLECharacteristic::getValue(time_t *timestamp) {
  */
 size_t NimBLECharacteristic::getDataLength() {
     ble_npl_hw_enter_critical();
-    size_t len = m_value.length();
+    size_t len = m_value.size();
     ble_npl_hw_exit_critical(0);
     return len;
 }
@@ -287,7 +287,7 @@ int NimBLECharacteristic::handleGapEvent(uint16_t conn_handle, uint16_t attr_han
 
                 ble_npl_hw_enter_critical();
                 rc = os_mbuf_append(ctxt->om, (uint8_t*)pCharacteristic->m_value.data(),
-                                    pCharacteristic->m_value.length());
+                                    pCharacteristic->m_value.size());
                 ble_npl_hw_exit_critical(0);
                 return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
             }
@@ -540,7 +540,7 @@ void NimBLECharacteristic::setValue(const uint8_t* data, size_t length) {
 
     time_t t = time(nullptr);
     ble_npl_hw_enter_critical();
-    m_value = std::string((char*)data, length);
+    m_value = std::vector<uint8_t>(data, data + length);
     m_timestamp = t;
     ble_npl_hw_exit_critical(0);
 
@@ -551,10 +551,10 @@ void NimBLECharacteristic::setValue(const uint8_t* data, size_t length) {
 /**
  * @brief Set the value of the characteristic from string data.\n
  * We set the value of the characteristic from the bytes contained in the string.
- * @param [in] value the std::string value of the characteristic.
+ * @param [in] value the std::vector<uint8_t> value of the characteristic.
  */
-void NimBLECharacteristic::setValue(const std::string &value) {
-    setValue((uint8_t*)(value.data()), value.length());
+void NimBLECharacteristic::setValue(const std::vector<uint8_t> &value) {
+    setValue(value.data(), value.size());
 } // setValue
 
 
