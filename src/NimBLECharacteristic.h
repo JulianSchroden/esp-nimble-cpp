@@ -87,7 +87,7 @@ public:
 
     void              indicate();
     void              notify(bool is_notification = true);
-    void              notify(std::string value, bool is_notification = true);
+    void              notify(std::vector<uint8_t> value, bool is_notification = true);
 
     size_t            getSubscribedCount();
 

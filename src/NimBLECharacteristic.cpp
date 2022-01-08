@@ -414,8 +414,8 @@ void NimBLECharacteristic::notify(bool is_notification) {
  * A notification will not block; it is a fire and forget.
  * @param[in] is_notification if true sends a notification, false sends an indication.
  */
-void NimBLECharacteristic::notify(std::string value, bool is_notification) {
-    size_t length = value.length();
+void NimBLECharacteristic::notify(std::vector<uint8_t> value, bool is_notification) {
+    size_t length = value.size();
     NIMBLE_LOGD(LOG_TAG, ">> notify: length: %d", length);
 
     if(!(m_properties & NIMBLE_PROPERTY::NOTIFY) &&
