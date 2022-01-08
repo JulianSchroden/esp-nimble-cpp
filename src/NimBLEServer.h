@@ -35,6 +35,8 @@ class NimBLEService;
 class NimBLECharacteristic;
 class NimBLEServerCallbacks;
 
+using ClientCallback = std::function<void(ble_gap_conn_desc* desc)>;
+
 
 /**
  * @brief The model of a %BLE server.
@@ -47,8 +49,12 @@ public:
     void                   removeService(NimBLEService* service, bool deleteSvc = false);
     void                   addService(NimBLEService* service);
     NimBLEAdvertising*     getAdvertising();
+    
     void                   setCallbacks(NimBLEServerCallbacks* pCallbacks,
                                         bool deleteCallbacks = true);
+    void                   onClientConnected(ClientCallback callback);
+    void                   onClientDisconnected(ClientCallback callback);
+
     void                   startAdvertising();
     void                   stopAdvertising();
     void                   start();
@@ -80,6 +86,8 @@ private:
     bool                   m_advertiseOnDisconnect;
     bool                   m_svcChanged;
     NimBLEServerCallbacks* m_pServerCallbacks;
+    ClientCallback         m_onClientConnected;
+    ClientCallback         m_onClientDisconnected;
     bool                   m_deleteCallbacks;
     uint16_t               m_indWait[CONFIG_BT_NIMBLE_MAX_CONNECTIONS];
     std::vector<uint16_t>  m_connectedPeersVec;

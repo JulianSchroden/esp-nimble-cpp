@@ -351,6 +351,9 @@ NimBLEConnInfo NimBLEServer::getPeerIDInfo(uint16_t id) {
 
                 server->m_pServerCallbacks->onConnect(server);
                 server->m_pServerCallbacks->onConnect(server, &desc);
+                if(server->m_onClientConnected) {
+                    server->m_onClientConnected(&desc);
+                }
             }
 
             return 0;
@@ -383,6 +386,9 @@ NimBLEConnInfo NimBLEServer::getPeerIDInfo(uint16_t id) {
 
             server->m_pServerCallbacks->onDisconnect(server);
             server->m_pServerCallbacks->onDisconnect(server, &event->disconnect.conn);
+            if(server->m_onClientDisconnected) {
+                server->m_onClientDisconnected(&event->disconnect.conn);
+            }
 
             if(server->m_advertiseOnDisconnect) {
                 server->startAdvertising();
@@ -611,6 +617,13 @@ void NimBLEServer::setCallbacks(NimBLEServerCallbacks* pCallbacks, bool deleteCa
     }
 } // setCallbacks
 
+void NimBLEServer::onClientConnected(ClientCallback callback) {
+    m_onClientConnected = callback;
+}
+
+void NimBLEServer::onClientDisconnected(ClientCallback callback) {
+    m_onClientDisconnected = callback;
+}
 
 /**
  * @brief Remove a service from the server.
