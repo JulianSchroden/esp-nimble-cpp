@@ -346,7 +346,6 @@ void NimBLEAdvertising::setScanFilter(bool scanRequestWhitelistOnly, bool connec
  * or setAppearance. If you wish for these to be advertised you must include them\n
  * in the advertisementData parameter sent.
  */
-
 void NimBLEAdvertising::setAdvertisementData(NimBLEAdvertisementData& advertisementData) {
     NIMBLE_LOGD(LOG_TAG, ">> setAdvertisementData");
     int rc = ble_gap_adv_set_data(
@@ -384,10 +383,10 @@ void NimBLEAdvertising::setScanResponseData(NimBLEAdvertisementData& advertiseme
 /**
  * @brief Start advertising.
  * @param [in] duration The duration, in seconds, to advertise, 0 == advertise forever.
- * @param [in] advCompleteCB A pointer to a callback to be invoked when advertising ends.
+ * @param [in] onAdvertisingComplete A std::function callback to be invoked when advertising ends.
  * @return True if advertising started successfully.
  */
-bool NimBLEAdvertising::start(uint32_t duration, void (*advCompleteCB)(NimBLEAdvertising *pAdv)) {
+bool NimBLEAdvertising::start(uint32_t duration, std::function<void()> onAdvertisingComplete) {
     NIMBLE_LOGD(LOG_TAG, ">> Advertising start: customAdvData: %d, customScanResponseData: %d",
                 m_customAdvData, m_customScanResponseData);
 
@@ -425,7 +424,7 @@ bool NimBLEAdvertising::start(uint32_t duration, void (*advCompleteCB)(NimBLEAdv
         duration = duration*1000; // convert duration to milliseconds
     }
 
-    m_advCompCB = advCompleteCB;
+    m_onAdvertisingComplete = onAdvertisingComplete;
 
     m_advParams.disc_mode = BLE_GAP_DISC_MODE_GEN;
     m_advData.flags = (BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP);
@@ -681,8 +680,8 @@ void NimBLEAdvertising::stop() {
  * @brief Handles the callback when advertising stops.
  */
 void NimBLEAdvertising::advCompleteCB() {
-    if(m_advCompCB != nullptr) {
-        m_advCompCB(this);
+    if(m_onAdvertisingComplete) {
+        m_onAdvertisingComplete();
     }
 } // advCompleteCB
 
@@ -706,7 +705,7 @@ void NimBLEAdvertising::onHostSync() {
     m_advDataSet = false;
     // If we were advertising forever, restart it now
     if(m_duration == 0) {
-        start(m_duration, m_advCompCB);
+        start(m_duration, m_onAdvertisingComplete);
     } else {
     // Otherwise we should tell the app that advertising stopped.
         advCompleteCB();

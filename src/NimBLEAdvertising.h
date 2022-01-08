@@ -31,6 +31,7 @@
 #include "NimBLEUUID.h"
 
 #include <vector>
+#include <functional>
 
 /* COMPATIBILITY - DO NOT USE */
 #define ESP_BLE_ADV_FLAG_LIMIT_DISC         (0x01 << 0)
@@ -88,7 +89,7 @@ public:
     void addServiceUUID(const NimBLEUUID &serviceUUID);
     void addServiceUUID(const char* serviceUUID);
     void removeServiceUUID(const NimBLEUUID &serviceUUID);
-    bool start(uint32_t duration = 0, void (*advCompleteCB)(NimBLEAdvertising *pAdv) = nullptr);
+    bool start(uint32_t duration = 0, std::function<void()> onAdvertisingComplete = nullptr);
     void stop();
     void setAppearance(uint16_t appearance);
     void setName(const std::string &name);
@@ -123,7 +124,7 @@ private:
     bool                    m_customScanResponseData;
     bool                    m_scanResp;
     bool                    m_advDataSet;
-    void                    (*m_advCompCB)(NimBLEAdvertising *pAdv);
+    std::function<void()>   m_onAdvertisingComplete;
     uint8_t                 m_slaveItvl[4];
     uint32_t                m_duration;
     std::vector<uint8_t>    m_svcData16;
